@@ -27,7 +27,7 @@ The `@logged` decorator logs a console message when a method starts and finishes
 
 Usage:
 
-```mjs
+```js
 import { logged } from "./logged.mjs";
 
 class C {
@@ -56,7 +56,7 @@ new C().m(1);
 
 The return value of a decorator is a new value that replaces the thing it's wrapping. For methods, getters and setters, the return value is another function to replace that method, getter or setter.
 
-```mjs
+```js
 // logged.mjs
 
 export function logged(f) {
@@ -99,7 +99,7 @@ This desugaring is in terms of the [class static block proposal](https://github.
 
 [HTML Custom Elements](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements) lets you define your own HTML element. Elements are registered using `customElements.define`. Using decorators, the registration can happen up-front:
 
-```mjs
+```js
 import { defineElement } from "./defineElement.mjs";
 
 @defineElement('my-class')
@@ -108,7 +108,7 @@ class MyClass extends HTMLElement { }
 
 Classes can be decorated just like methods and accessors. The class shows up in the `value` option.
 
-```mjs
+```js
 // defineElement.mjs
 export function defineElement(name, options) {
   return klass => { customElements.define(name, klass, options); return klass; }
@@ -128,7 +128,7 @@ MyClass = defineElement('my-class')(MyClass, {kind: "class"});
 
 Decorators can add metadata about class elements by adding a `metadata` property of the context object that is passed in to them. All of the metadata objects are `Object.assign`'ed together and placed in a property reachable from `[Symbol.metadata]` on the class. For example:
 
-```mjs
+```js
 @annotate({x: "y"}) @annotate({v: "w"}) class C {
   @annotate({a: "b"}) method() { }
   @annotate({c: "d"}) field;
@@ -173,7 +173,7 @@ The `@tracked` decorator watches a field and triggers a `render()` method when t
 
 Decorated fields have the semantics of getter/setter pairs around an underlying piece of private storage. The decorators can wrap these getter/setter functions. `@tracked` can wrap this getter/setter pair to implement the re-rendering behavior.
 
-```mjs
+```js
 import { tracked } from "./tracked.mjs";
 
 class Element {
@@ -191,7 +191,7 @@ e.increment();  // logs 2
 
 When fields are decorated, the "wrapped" value is an object with two properties: `get` and `set` functions that manipulate the underlying storage. They are built to be `.call()`ed with the instance of the class as a receiver. The decorator can then return a new object of the same form. (If one of the callbacks is missing, then it is left in place unwrapped.)
 
-```mjs
+```js
 // tracked.mjs
 
 export function tracked({get, set}) {
@@ -209,7 +209,7 @@ export function tracked({get, set}) {
 
 This example could be roughly desugared as follows:
 
-```mjs
+```js
 let initialize, get, set;
 
 class Element {
@@ -233,7 +233,7 @@ Sometimes, certain code outside of a class may need to access private fields and
 
 Decorators can make this possible by giving someone access to a private field or method. This may be encapsulated in a "private key"--an object which contains these references, to be shared only with who's appropriate.
 
-```mjs
+```js
 import { PrivateKey } from "./private-key.mjs"
 
 let key = new PrivateKey;
@@ -253,7 +253,7 @@ export function getBox(box) {
 
 Note that this is a bit of a hack, and could be done better with constructs like references to private names with [`private.name`](https://gist.github.com/littledan/ab73ff08f98f33088a0072ad202445b1) and broader scope of private names with [`private`/`with`](https://gist.github.com/littledan/5451d6426a8ed65c0f3c2822c51314d1). But it shows that this decorator proposal "naturally" exposes existing things in a useful way.
 
-```mjs
+```js
 // private-key.mjs
 export class PrivateKey {
   #get;
@@ -276,7 +276,7 @@ export class PrivateKey {
 
 This example could be roughly desugared as follows:
 
-```mjs
+```js
 let initialize, get, set;
 export class Box {
   #_contents = initialize(undefined);
@@ -295,7 +295,7 @@ export class Box {
 
 The `@deprecated` decorator prints warnings when a deprecated field, method or accessor is used. As an example usage:
 
-```mjs
+```js
 import { deprecated } from "./deprecated.mjs"
 
 export class MyClass {
@@ -309,7 +309,7 @@ export class MyClass {
 
 To allow the `deprecated` to work on different kinds of class elements, the `kind` field of the context object lets decorators see which kind of syntactic construct they are deprecating. This technique also allows an error to be thrown when the decorator is used in a context where it can't apply--for example, the entire class cannot be marked as deprecated, since there is no way to intercept its access.
 
-```mjs
+```js
 // deprecated.mjs
 
 function wrapDeprecated(fn) {
